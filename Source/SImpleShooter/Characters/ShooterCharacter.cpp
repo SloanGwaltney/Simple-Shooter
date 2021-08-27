@@ -42,10 +42,11 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	PlayerInputComponent->BindAxis(FName("LookRight"), this, &APawn::AddControllerYawInput);
 	PlayerInputComponent->BindAxis(FName("MoveRight"), this, &AShooterCharacter::MoveRight);
 	PlayerInputComponent->BindAction(FName("Jump"),  IE_Pressed, this, &AShooterCharacter::Jump);
-	
+
 	// Gun
 	PlayerInputComponent->BindAction(FName("FireGun"), IE_Pressed, this, &AShooterCharacter::Shoot);
-	
+	PlayerInputComponent->BindAction(FName("Reload"), IE_Pressed, this, &AShooterCharacter::Reload);
+
 	// Analog Controller Specific Actions/Axis
 	PlayerInputComponent->BindAxis(FName("LookUpRate"), this, &AShooterCharacter::LookUpRate);
 	PlayerInputComponent->BindAxis(FName("LookRightRate"), this, &AShooterCharacter::LookRightRate);
@@ -85,7 +86,25 @@ void AShooterCharacter::Jump()
 
 void AShooterCharacter::Shoot() 
 {
+	if (Gun == nullptr) return;
 	Gun->PullTrigger();
+}
+
+void AShooterCharacter::Reload() 
+{
+	if (Gun == nullptr) return;
+	Gun->Reload();
+}
+
+bool AShooterCharacter::IsReloading() 
+{
+	if (Gun == nullptr) return false;
+	return Gun->IsReloading();
+}
+
+AGun* AShooterCharacter::GetGun() const
+{
+	return Gun;
 }
 
 float AShooterCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) 

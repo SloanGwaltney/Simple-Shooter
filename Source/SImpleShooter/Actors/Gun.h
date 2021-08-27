@@ -15,6 +15,13 @@ public:
 	// Sets default values for this actor's properties
 	AGun();
 	void PullTrigger();
+	void Reload();
+	UFUNCTION(BlueprintPure)
+	int GetRoundsInClip() const;
+	UFUNCTION(BlueprintPure)
+	int GetMaxAmmoRoundsPerClip() const;
+	bool IsClipEmpty();
+	bool IsReloading();
 
 protected:
 	// Called when the game starts or when spawned
@@ -46,6 +53,12 @@ private:
 	UPROPERTY(EditAnywhere)
 	USoundBase* HitSound;
 
+	UPROPERTY(EditAnywhere)
+	USoundBase* OutOfAmmoTriggerPullSound;
+
+	UPROPERTY(EditAnywhere)
+	USoundBase* ReloadSound;
+
 	// The max range the weapons projectile can go in centimeters
 	UPROPERTY(EditAnywhere)
 	float MaxRange = 1000.f;
@@ -54,6 +67,17 @@ private:
 	UPROPERTY(EditAnywhere)
 	float Damage = 25.f;
 
+	UPROPERTY(EditAnywhere)
+	int MaxAmmoRoundsPerClip = 12;
+
+	int AmmoRoundsInClip;
+
+	bool bIsReloading = false;
+
 	bool GunTrace(FHitResult& Hit, FVector& ShotDirection);
+	
+	UFUNCTION()
+	void ResetClipAmmo();
+
 	AController* GetOwnerController() const;
 };
