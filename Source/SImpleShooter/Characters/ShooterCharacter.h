@@ -7,6 +7,7 @@
 #include "ShooterCharacter.generated.h"
 
 class AGun;
+class USoundBase;
 
 UCLASS()
 class SIMPLESHOOTER_API AShooterCharacter : public ACharacter
@@ -55,6 +56,9 @@ private:
 	// The class of the gun that the character will use
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<AGun> GunClass;
+
+	UPROPERTY(EditAnywhere)
+	USoundBase* HitScream;
 
 	// The actual gun that the charecter will use
 	UPROPERTY()
