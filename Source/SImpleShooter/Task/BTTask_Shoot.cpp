@@ -4,6 +4,7 @@
 #include "BTTask_Shoot.h"
 #include "AIController.h"
 #include "SImpleShooter/Characters/ShooterCharacter.h"
+#include "SImpleShooter/Actors/Gun.h"
 
 UBTTask_Shoot::UBTTask_Shoot() 
 {
@@ -17,6 +18,8 @@ EBTNodeResult::Type UBTTask_Shoot::ExecuteTask(UBehaviorTreeComponent &OwnerComp
     if (OwnerComp.GetAIOwner() == nullptr || OwnerComp.GetAIOwner()->GetPawn() == nullptr) return EBTNodeResult::Failed;
     AShooterCharacter* AICharacter = Cast<AShooterCharacter>(OwnerComp.GetAIOwner()->GetPawn());
     if (AICharacter == nullptr) return EBTNodeResult::Failed;
+
+    if (AICharacter->IsReloading()) return EBTNodeResult::Succeeded;
 
     AICharacter->Shoot();
     return EBTNodeResult::Succeeded;
