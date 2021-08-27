@@ -36,6 +36,13 @@ public:
 
 	void Shoot();
 
+	void Reload();
+
+	bool IsReloading();
+
+	UFUNCTION(BlueprintPure)
+	AGun* GetGun() const;
+
 private:
 	// Sensitivity of how much the character will look up and down in response to input
 	UPROPERTY(EditAnywhere, Category = "Movement")
