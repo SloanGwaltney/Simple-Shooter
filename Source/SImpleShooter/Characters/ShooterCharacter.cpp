@@ -5,6 +5,8 @@
 #include "SImpleShooter/Actors/Gun.h"
 #include "Components/CapsuleComponent.h"
 #include "SImpleShooter/SImpleShooterGameModeBase.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundBase.h"
 
 // Sets default values
 AShooterCharacter::AShooterCharacter()
@@ -104,6 +106,7 @@ bool AShooterCharacter::IsReloading()
 
 AGun* AShooterCharacter::GetGun() const
 {
+	if (Gun != nullptr) UE_LOG(LogTemp, Warning, TEXT("I GOT A GUN"));
 	return Gun;
 }
 
@@ -113,6 +116,7 @@ float AShooterCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dama
 	DamageToApply = FMath::Min(Health, DamageToApply);
 	Health = Health - DamageToApply;
 	UE_LOG(LogTemp, Warning, TEXT("%f health left"), Health);
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), HitScream, GetActorLocation());
 
 	if (IsDead())
 	{
