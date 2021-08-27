@@ -5,6 +5,7 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "DrawDebugHelpers.h"
+#include "Components/AudioComponent.h"
 #define OUT
 
 // Sets default values
@@ -21,12 +22,21 @@ AGun::AGun()
 
 void AGun::PullTrigger() 
 {
+	if (IsReloading()) return;
+	if (AmmoRoundsInClip < 1)
+	{
+		UGameplayStatics::SpawnSoundAttached(OutOfAmmoTriggerPullSound, Mesh, FName("MuzzleFlashSocket"));
+		return;
+	}
+
+	AmmoRoundsInClip = AmmoRoundsInClip - 1;
+
 	UGameplayStatics::SpawnEmitterAttached(MuzzleFlash, Mesh, FName("MuzzleFlashSocket"));
 	UGameplayStatics::SpawnSoundAttached(MuzzleSound, Mesh, FName("MuzzleFlashSocket"));
 
 	FVector ShotDirection;
 	FHitResult LineTraceHitResult;
-
+	
 	bool bLineTraceHit = GunTrace(LineTraceHitResult, ShotDirection);
 
 	if (bLineTraceHit)
@@ -44,11 +54,38 @@ void AGun::PullTrigger()
 	}
 }
 
+void AGun::Reload() 
+{
+	bIsReloading = true;
+	UAudioComponent* ReloadAudio = UGameplayStatics::SpawnSoundAttached(ReloadSound, Mesh, FName("MuzzleFlashSocket"));
+	ReloadAudio->OnAudioFinished.AddDynamic(this, &AGun::ResetClipAmmo);
+}
+
+int AGun::GetRoundsInClip() const
+{
+	return AmmoRoundsInClip;
+}
+
+int AGun::GetMaxAmmoRoundsPerClip() const
+{
+	return MaxAmmoRoundsPerClip;
+}
+
+bool AGun::IsClipEmpty() 
+{
+	return GetRoundsInClip() < 1;
+}
+
+bool AGun::IsReloading() 
+{
+	return bIsReloading;
+}
+
 // Called when the game starts or when spawned
 void AGun::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	ResetClipAmmo();
 }
 
 // Called every frame
@@ -84,6 +121,12 @@ bool AGun::GunTrace(FHitResult& Hit, FVector& ShotDirection)
 		LineTraceQueryParams,
 		LineTraceResponseParams
 	);
+}
+
+void AGun::ResetClipAmmo() 
+{
+	AmmoRoundsInClip = MaxAmmoRoundsPerClip;
+	bIsReloading = false;
 }
 
 AController* AGun::GetOwnerController() const
