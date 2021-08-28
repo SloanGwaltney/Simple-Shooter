@@ -98,6 +98,14 @@ void AShooterCharacter::Reload()
 	Gun->Reload();
 }
 
+/**
+ * Actions performed when this player sees another player.
+*/
+void AShooterCharacter::PlayerSeen() 
+{
+	UGameplayStatics::SpawnSoundAtLocation(GetWorld(), PlayerSeenCue, GetActorLocation());
+}
+
 bool AShooterCharacter::IsReloading() 
 {
 	if (Gun == nullptr) return false;
@@ -106,7 +114,6 @@ bool AShooterCharacter::IsReloading()
 
 AGun* AShooterCharacter::GetGun() const
 {
-	if (Gun != nullptr) UE_LOG(LogTemp, Warning, TEXT("I GOT A GUN"));
 	return Gun;
 }
 

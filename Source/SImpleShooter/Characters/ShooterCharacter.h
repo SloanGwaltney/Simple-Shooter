@@ -39,6 +39,8 @@ public:
 
 	void Reload();
 
+	void PlayerSeen();
+
 	bool IsReloading();
 
 	UFUNCTION(BlueprintPure)
@@ -59,6 +61,9 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	USoundBase* HitScream;
+
+	UPROPERTY(EditAnywhere)
+	USoundBase* PlayerSeenCue;
 
 	// The actual gun that the charecter will use
 	UPROPERTY()
