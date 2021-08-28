@@ -7,6 +7,7 @@
 #include "ShooterCharacter.generated.h"
 
 class AGun;
+class USoundBase;
 
 UCLASS()
 class SIMPLESHOOTER_API AShooterCharacter : public ACharacter
@@ -38,6 +39,8 @@ public:
 
 	void Reload();
 
+	void PlayerSeen();
+
 	bool IsReloading();
 
 	UFUNCTION(BlueprintPure)
@@ -55,6 +58,12 @@ private:
 	// The class of the gun that the character will use
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<AGun> GunClass;
+
+	UPROPERTY(EditAnywhere)
+	USoundBase* HitScream;
+
+	UPROPERTY(EditAnywhere)
+	USoundBase* PlayerSeenCue;
 
 	// The actual gun that the charecter will use
 	UPROPERTY()

@@ -5,6 +5,8 @@
 #include "SImpleShooter/Actors/Gun.h"
 #include "Components/CapsuleComponent.h"
 #include "SImpleShooter/SImpleShooterGameModeBase.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundBase.h"
 
 // Sets default values
 AShooterCharacter::AShooterCharacter()
@@ -96,6 +98,14 @@ void AShooterCharacter::Reload()
 	Gun->Reload();
 }
 
+/**
+ * Actions performed when this player sees another player.
+*/
+void AShooterCharacter::PlayerSeen() 
+{
+	UGameplayStatics::SpawnSoundAtLocation(GetWorld(), PlayerSeenCue, GetActorLocation());
+}
+
 bool AShooterCharacter::IsReloading() 
 {
 	if (Gun == nullptr) return false;
@@ -113,6 +123,7 @@ float AShooterCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dama
 	DamageToApply = FMath::Min(Health, DamageToApply);
 	Health = Health - DamageToApply;
 	UE_LOG(LogTemp, Warning, TEXT("%f health left"), Health);
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), HitScream, GetActorLocation());
 
 	if (IsDead())
 	{
