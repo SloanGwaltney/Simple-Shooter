@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "SImpleShooter/Actors/WeaponCrate.h"
 #include "ShooterCharacter.generated.h"
 
 class AGun;
@@ -21,6 +22,9 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	UFUNCTION(BlueprintImplementableEvent)
+	AWeaponCrate* LineTraceForWeaponCrate();
 
 public:	
 	// Called every frame
@@ -42,6 +46,9 @@ public:
 	void PlayerSeen();
 
 	bool IsReloading();
+
+	UFUNCTION(BlueprintPure)
+	float GetReach() const;
 
 	UFUNCTION(BlueprintPure)
 	AGun* GetGun() const;
@@ -67,7 +74,7 @@ private:
 
 	// The actual gun that the charecter will use
 	UPROPERTY()
-	AGun* Gun;
+	AGun* Gun = nullptr;
 
 	// The Charecters current health
 	float Health;
@@ -75,6 +82,9 @@ private:
 	// The max health the character can have
 	UPROPERTY(EditAnywhere)
 	float MaxHealth = 100.f;
+
+	UPROPERTY(EditAnywhere)
+	float Reach = 100.f;
 
 	/**
 	 *	This will move the actor forward.
@@ -99,4 +109,5 @@ private:
 	void LookRightRate(float AxisValue);
 	void Jump();
 	float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+	void GrabItem();
 };

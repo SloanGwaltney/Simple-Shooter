@@ -5,6 +5,7 @@
 #include "SImpleShooter/Actors/Gun.h"
 #include "Components/CapsuleComponent.h"
 #include "SImpleShooter/SImpleShooterGameModeBase.h"
+#include "SImpleShooter/Actors/WeaponCrate.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundBase.h"
 
@@ -20,10 +21,14 @@ AShooterCharacter::AShooterCharacter()
 void AShooterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	Gun = GetWorld()->SpawnActor<AGun>(GunClass);
 	GetMesh()->HideBoneByName(TEXT("weapon_r"), EPhysBodyOp::PBO_None);
-	Gun->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("WeaponSocket"));
-	Gun->SetOwner(this);
+	// TODO: Make a function
+	if (GunClass)
+	{
+		Gun = GetWorld()->SpawnActor<AGun>(GunClass);
+		Gun->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("WeaponSocket"));
+		Gun->SetOwner(this);
+	}
 	Health = MaxHealth;
 }
 
@@ -48,6 +53,9 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	// Gun
 	PlayerInputComponent->BindAction(FName("FireGun"), IE_Pressed, this, &AShooterCharacter::Shoot);
 	PlayerInputComponent->BindAction(FName("Reload"), IE_Pressed, this, &AShooterCharacter::Reload);
+
+	// Player Actions
+	PlayerInputComponent->BindAction(FName("Grab"), IE_Pressed, this, &AShooterCharacter::GrabItem);
 
 	// Analog Controller Specific Actions/Axis
 	PlayerInputComponent->BindAxis(FName("LookUpRate"), this, &AShooterCharacter::LookUpRate);
@@ -112,6 +120,11 @@ bool AShooterCharacter::IsReloading()
 	return Gun->IsReloading();
 }
 
+float AShooterCharacter::GetReach() const
+{
+	return Reach;
+}
+
 AGun* AShooterCharacter::GetGun() const
 {
 	return Gun;
@@ -137,6 +150,19 @@ float AShooterCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dama
 	}
 
 	return DamageToApply;
+}
+
+void AShooterCharacter::GrabItem() 
+{
+	AWeaponCrate* TracedCrate = LineTraceForWeaponCrate();
+	if (TracedCrate != nullptr && TracedCrate->GetGun() != nullptr)
+	{
+		GunClass = TracedCrate->GetGun()->GetClass();
+		Gun = GetWorld()->SpawnActor<AGun>(GunClass);
+		Gun->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("WeaponSocket"));
+		Gun->SetOwner(this);
+		UE_LOG(LogTemp, Warning, TEXT("OMFG I WORK"))
+	}
 }
 
 bool AShooterCharacter::IsDead() const 
