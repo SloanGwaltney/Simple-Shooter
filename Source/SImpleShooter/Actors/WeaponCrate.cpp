@@ -16,6 +16,7 @@ void AWeaponCrate::BeginPlay()
 {
 	Super::BeginPlay();
 	Gun = GetWorld()->SpawnActor<AGun>(GunClass);
+	Gun->AttachToComponent(GetStaticMeshComponent(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("WeaponSocket"));
 	Gun->SetOwner(this);
 }
 
