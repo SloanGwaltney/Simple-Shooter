@@ -9,6 +9,7 @@
 
 class AGun;
 class USoundBase;
+class AWeaponCrate;
 
 UCLASS()
 class SIMPLESHOOTER_API AShooterCharacter : public ACharacter
@@ -22,9 +23,7 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
-	UFUNCTION(BlueprintImplementableEvent)
-	AWeaponCrate* LineTraceForWeaponCrate();
+	float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
 public:	
 	// Called every frame
@@ -108,6 +107,7 @@ private:
 	void LookUpRate(float AxisValue);
 	void LookRightRate(float AxisValue);
 	void Jump();
-	float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 	void GrabItem();
+	bool ReachLineTrace(FHitResult &Hit);
+	void GrabGunFromCrate(AWeaponCrate* WeaponCrate);
 };

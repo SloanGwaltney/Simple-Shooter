@@ -97,7 +97,12 @@ void AShooterCharacter::Jump()
 void AShooterCharacter::Shoot() 
 {
 	if (Gun == nullptr) return;
-	Gun->PullTrigger();
+	
+	bool bLineTraceHit;
+	FHitResult Hit;
+	FVector ShotDirection;
+	
+	Gun->PullTrigger(bLineTraceHit, Hit, ShotDirection);
 }
 
 void AShooterCharacter::Reload() 
@@ -154,15 +159,32 @@ float AShooterCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dama
 
 void AShooterCharacter::GrabItem() 
 {
-	AWeaponCrate* TracedCrate = LineTraceForWeaponCrate();
-	if (TracedCrate != nullptr && TracedCrate->GetGun() != nullptr)
+	FHitResult Hit;
+	bool bDidTraceHit = ReachLineTrace(Hit);
+	AActor* HitActor = Hit.GetActor();
+	if (bDidTraceHit == false || HitActor == nullptr) return;
+	if (HitActor->GetClass()->IsChildOf(AWeaponCrate::StaticClass()))
 	{
-		GunClass = TracedCrate->GetGun()->GetClass();
-		Gun = GetWorld()->SpawnActor<AGun>(GunClass);
-		Gun->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("WeaponSocket"));
-		Gun->SetOwner(this);
-		UE_LOG(LogTemp, Warning, TEXT("OMFG I WORK"))
+		GrabGunFromCrate(Cast<AWeaponCrate>(HitActor));
+		return;
 	}
+}
+
+bool AShooterCharacter::ReachLineTrace(FHitResult &Hit) 
+{	
+	FVector ViewpointLocation;
+	FRotator ViewpointRotation;
+	GetController()->GetPlayerViewPoint(ViewpointLocation, ViewpointRotation);
+	FVector LineTraceEnd = ViewpointLocation + ViewpointRotation.Vector() * Reach;
+	return GetWorld()->LineTraceSingleByChannel(Hit, ViewpointLocation, LineTraceEnd, ECC_Visibility);
+}
+
+void AShooterCharacter::GrabGunFromCrate(AWeaponCrate* WeaponCrate) 
+{
+	GunClass = WeaponCrate->GetGun()->GetClass();
+	Gun = GetWorld()->SpawnActor<AGun>(GunClass);
+	Gun->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("WeaponSocket"));
+	Gun->SetOwner(this);
 }
 
 bool AShooterCharacter::IsDead() const 
