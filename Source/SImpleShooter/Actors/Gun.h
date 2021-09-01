@@ -6,6 +6,14 @@
 #include "GameFramework/Actor.h"
 #include "Gun.generated.h"
 
+UENUM()
+enum TriggerPullResult
+{
+	Reloading,
+	OutOfAmmo,
+	Fired
+};
+
 UCLASS()
 class SIMPLESHOOTER_API AGun : public AActor
 {
@@ -14,19 +22,39 @@ class SIMPLESHOOTER_API AGun : public AActor
 public:	
 	// Sets default values for this actor's properties
 	AGun();
-	void PullTrigger();
+
+	UFUNCTION(BlueprintNativeEvent)
+	TriggerPullResult PullTrigger(bool &bLineTraceHit, FHitResult &HitResult, FVector &ShotDirection);
+
 	void Reload();
+	
 	UFUNCTION(BlueprintPure)
 	int GetRoundsInClip() const;
+	
 	UFUNCTION(BlueprintPure)
 	int GetMaxAmmoRoundsPerClip() const;
-	bool IsClipEmpty();
-	bool IsReloading();
+
+	UFUNCTION(BlueprintPure)
+	bool IsClipEmpty() const;
+
+	UFUNCTION(BlueprintPure)
+	bool IsReloading() const;
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	
+	UFUNCTION(BlueprintCallable)
+	void PlayDryFireSound() const;
 
+	UFUNCTION(BlueprintCallable)
+	void SpawnMuzzleEffects() const;
+
+	UFUNCTION(BlueprintCallable)
+	float DealDamage(FHitResult &HitResult, FVector &ShotDirection);
+
+	UFUNCTION(BlueprintPure)
+	void SpawnHitEffects(FHitResult& Hit, FVector& ShotDirection) const;
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

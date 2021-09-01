@@ -20,38 +20,24 @@ AGun::AGun()
 	Mesh->SetupAttachment(Root);
 }
 
-void AGun::PullTrigger() 
+TriggerPullResult AGun::PullTrigger_Implementation(bool &bLineTraceHit, FHitResult &HitResult, FVector &ShotDirection)
 {
-	if (IsReloading()) return;
-	if (AmmoRoundsInClip < 1)
-	{
-		UGameplayStatics::SpawnSoundAttached(OutOfAmmoTriggerPullSound, Mesh, FName("MuzzleFlashSocket"));
-		return;
+	if (IsReloading()) return TriggerPullResult::Reloading;
+	if (AmmoRoundsInClip < 1) {
+		PlayDryFireSound();
+		return TriggerPullResult::OutOfAmmo;
 	}
 
 	AmmoRoundsInClip = AmmoRoundsInClip - 1;
+	SpawnMuzzleEffects();
+	bLineTraceHit = GunTrace(HitResult, ShotDirection);
 
-	UGameplayStatics::SpawnEmitterAttached(MuzzleFlash, Mesh, FName("MuzzleFlashSocket"));
-	UGameplayStatics::SpawnSoundAttached(MuzzleSound, Mesh, FName("MuzzleFlashSocket"));
-
-	FVector ShotDirection;
-	FHitResult LineTraceHitResult;
-	
-	bool bLineTraceHit = GunTrace(LineTraceHitResult, ShotDirection);
-
-	if (bLineTraceHit)
-	{
-		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitEffect, LineTraceHitResult.Location, ShotDirection.Rotation());
-		UGameplayStatics::SpawnSoundAtLocation(GetWorld(), HitSound, LineTraceHitResult.Location);
-		AActor* HitActor = LineTraceHitResult.GetActor();
-		if (HitActor != nullptr)
-		{
-			FPointDamageEvent DamageEvent(Damage, LineTraceHitResult, ShotDirection, nullptr);
-			// Null check handled by GunTrace
-			AController* OwnerController = GetOwnerController();
-			HitActor->TakeDamage(Damage, DamageEvent, OwnerController, this);
-		}
+	if (bLineTraceHit) {
+		SpawnHitEffects(HitResult, ShotDirection);
+		DealDamage(HitResult, ShotDirection);
 	}
+
+	return TriggerPullResult::Fired;
 }
 
 void AGun::Reload() 
@@ -71,14 +57,40 @@ int AGun::GetMaxAmmoRoundsPerClip() const
 	return MaxAmmoRoundsPerClip;
 }
 
-bool AGun::IsClipEmpty() 
+bool AGun::IsClipEmpty() const 
 {
 	return GetRoundsInClip() < 1;
 }
 
-bool AGun::IsReloading() 
+bool AGun::IsReloading() const
 {
 	return bIsReloading;
+}
+
+void AGun::PlayDryFireSound() const
+{
+	UGameplayStatics::SpawnSoundAttached(OutOfAmmoTriggerPullSound, Mesh, FName("MuzzleFlashSocket"));
+}
+
+void AGun::SpawnMuzzleEffects() const
+{
+	UGameplayStatics::SpawnEmitterAttached(MuzzleFlash, Mesh, FName("MuzzleFlashSocket"));
+	UGameplayStatics::SpawnSoundAttached(MuzzleSound, Mesh, FName("MuzzleFlashSocket"));
+}
+
+float AGun::DealDamage(FHitResult &HitResult, FVector &ShotDirection) 
+{
+	FPointDamageEvent DamageEvent(Damage, HitResult, ShotDirection, nullptr);
+	// Null check handled by GunTrace
+	AController* OwnerController = GetOwnerController();
+	if (HitResult.GetActor() != nullptr) return HitResult.GetActor()->TakeDamage(Damage, DamageEvent, OwnerController, this);
+	return 0;
+}
+
+void AGun::SpawnHitEffects(FHitResult& Hit, FVector& ShotDirection) const
+{
+	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitEffect, Hit.Location, ShotDirection.Rotation());
+	UGameplayStatics::SpawnSoundAtLocation(GetWorld(), HitSound, Hit.Location);
 }
 
 // Called when the game starts or when spawned
