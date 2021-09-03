@@ -8,6 +8,8 @@
 #include "SImpleShooter/Actors/WeaponCrate.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundBase.h"
+#include "SImpleShooter/Components/LevelChanger.h"
+#include "SImpleShooter/GameInstances/EndlessGameInstance.h"
 
 // Sets default values
 AShooterCharacter::AShooterCharacter()
@@ -21,6 +23,7 @@ AShooterCharacter::AShooterCharacter()
 void AShooterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	Health = MaxHealth;
 	GetMesh()->HideBoneByName(TEXT("weapon_r"), EPhysBodyOp::PBO_None);
 	// TODO: Make a function
 	if (GunClass)
@@ -29,7 +32,16 @@ void AShooterCharacter::BeginPlay()
 		Gun->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("WeaponSocket"));
 		Gun->SetOwner(this);
 	}
-	Health = MaxHealth;
+	UEndlessGameInstance* GameInstance = GetWorld()->GetGameInstanceChecked<UEndlessGameInstance>();
+	if (GameInstance != nullptr && Gun == nullptr)
+	{
+		UClass* WeaponClass = GameInstance->GetPlayerGunClass();
+		if (WeaponClass == nullptr) return;
+		UE_LOG(LogTemp, Warning, TEXT("DO I GET GUN FROM INSTANCE?"))
+		Gun = GetWorld()->SpawnActor<AGun>(WeaponClass);
+		Gun->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("WeaponSocket"));
+		Gun->SetOwner(this);
+	}
 }
 
 // Called every frame
@@ -163,6 +175,15 @@ void AShooterCharacter::GrabItem()
 	bool bDidTraceHit = ReachLineTrace(Hit);
 	AActor* HitActor = Hit.GetActor();
 	if (bDidTraceHit == false || HitActor == nullptr) return;
+	ULevelChanger* LevelChangeComponent = HitActor->FindComponentByClass<ULevelChanger>();
+	if (LevelChangeComponent != nullptr)
+	{
+		UEndlessGameInstance* GameInstance = GetWorld()->GetGameInstanceChecked<UEndlessGameInstance>();
+		if (GameInstance == nullptr) return;
+		if (Gun != nullptr) GameInstance->SetPlayerGunClass(Gun->GetClass());
+		LevelChangeComponent->ChangeLevel("Sandbox");
+		return;
+	}
 	if (HitActor->GetClass()->IsChildOf(AWeaponCrate::StaticClass()))
 	{
 		GrabGunFromCrate(Cast<AWeaponCrate>(HitActor));
