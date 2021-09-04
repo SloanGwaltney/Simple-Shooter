@@ -109,5 +109,5 @@ private:
 	void Jump();
 	void GrabItem();
 	bool ReachLineTrace(FHitResult &Hit);
-	void GrabGunFromCrate(AWeaponCrate* WeaponCrate);
+	void GrabGun(UClass* GunClassToGrab);
 };
