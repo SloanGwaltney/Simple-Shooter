@@ -67,6 +67,11 @@ bool AGun::IsReloading() const
 	return bIsReloading;
 }
 
+bool AGun::IsGrabbable() const
+{
+	return bCanBeGrabbed;
+}
+
 void AGun::PlayDryFireSound() const
 {
 	UGameplayStatics::SpawnSoundAttached(OutOfAmmoTriggerPullSound, Mesh, FName("MuzzleFlashSocket"));

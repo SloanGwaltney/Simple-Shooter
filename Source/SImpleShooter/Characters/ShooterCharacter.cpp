@@ -5,7 +5,6 @@
 #include "SImpleShooter/Actors/Gun.h"
 #include "Components/CapsuleComponent.h"
 #include "SImpleShooter/SImpleShooterGameModeBase.h"
-#include "SImpleShooter/Actors/WeaponCrate.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundBase.h"
 #include "SImpleShooter/Components/LevelChanger.h"
@@ -184,9 +183,12 @@ void AShooterCharacter::GrabItem()
 		LevelChangeComponent->ChangeLevel("Sandbox");
 		return;
 	}
-	if (HitActor->GetClass()->IsChildOf(AWeaponCrate::StaticClass()))
+	UE_LOG(LogTemp, Warning, TEXT("Actor Hit: %s"), *HitActor->GetActorLabel())
+	if (HitActor->GetClass()->IsChildOf(AGun::StaticClass()))
 	{
-		GrabGunFromCrate(Cast<AWeaponCrate>(HitActor));
+		UE_LOG(LogTemp, Warning, TEXT("LOG TRACE HIT GUN"))
+		AGun* GunToGrab = Cast<AGun>(HitActor);
+		if (GunToGrab->IsGrabbable()) GrabGun(HitActor->GetClass());
 		return;
 	}
 }
@@ -200,10 +202,10 @@ bool AShooterCharacter::ReachLineTrace(FHitResult &Hit)
 	return GetWorld()->LineTraceSingleByChannel(Hit, ViewpointLocation, LineTraceEnd, ECC_Visibility);
 }
 
-void AShooterCharacter::GrabGunFromCrate(AWeaponCrate* WeaponCrate) 
+void AShooterCharacter::GrabGun(UClass* GunClassToGrab) 
 {
-	GunClass = WeaponCrate->GetGun()->GetClass();
-	Gun = GetWorld()->SpawnActor<AGun>(GunClass);
+	UE_LOG(LogTemp, Warning, TEXT("GRAB GUN"))
+	Gun = GetWorld()->SpawnActor<AGun>(GunClassToGrab);
 	Gun->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("WeaponSocket"));
 	Gun->SetOwner(this);
 }

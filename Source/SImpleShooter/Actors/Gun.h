@@ -40,6 +40,9 @@ public:
 	UFUNCTION(BlueprintPure)
 	bool IsReloading() const;
 
+	UFUNCTION(BlueprintPure)
+	bool IsGrabbable() const;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -97,6 +100,9 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	int MaxAmmoRoundsPerClip = 12;
+
+	UPROPERTY(EditAnywhere)
+	bool bCanBeGrabbed = false;
 
 	int AmmoRoundsInClip;
 
