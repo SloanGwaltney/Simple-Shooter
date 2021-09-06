@@ -13,6 +13,8 @@ void AShooterAIController::BeginPlay()
     if (AIBehavior != nullptr)
     {
         RunBehaviorTree(AIBehavior);
+        if (GetBlackboardComponent() == nullptr) return;
+        if (GetPawn() == nullptr) return;
         GetBlackboardComponent()->SetValueAsVector(TEXT("StartingLocation"), GetPawn()->GetActorLocation());
         GetBlackboardComponent()->SetValueAsVector(TEXT("PlayerLocation"), PlayerPawn->GetActorLocation());
     }
