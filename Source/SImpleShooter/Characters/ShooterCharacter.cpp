@@ -18,6 +18,11 @@ AShooterCharacter::AShooterCharacter()
 
 }
 
+void AShooterCharacter::Destroyed()
+{
+	Super::Destroyed();
+	if (Gun != nullptr) Gun->Destroy();
+}
 // Called when the game starts or when spawned
 void AShooterCharacter::BeginPlay()
 {
@@ -32,11 +37,10 @@ void AShooterCharacter::BeginPlay()
 		Gun->SetOwner(this);
 	}
 	UEndlessGameInstance* GameInstance = GetWorld()->GetGameInstanceChecked<UEndlessGameInstance>();
-	if (GameInstance != nullptr && Gun == nullptr)
+	if (GameInstance != nullptr && Gun == nullptr && GunClass == nullptr)
 	{
 		UClass* WeaponClass = GameInstance->GetPlayerGunClass();
 		if (WeaponClass == nullptr) return;
-		UE_LOG(LogTemp, Warning, TEXT("DO I GET GUN FROM INSTANCE?"))
 		Gun = GetWorld()->SpawnActor<AGun>(WeaponClass);
 		Gun->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("WeaponSocket"));
 		Gun->SetOwner(this);
@@ -151,7 +155,6 @@ float AShooterCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dama
 	float DamageToApply = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 	DamageToApply = FMath::Min(Health, DamageToApply);
 	Health = Health - DamageToApply;
-	UE_LOG(LogTemp, Warning, TEXT("%f health left"), Health);
 	UGameplayStatics::PlaySoundAtLocation(GetWorld(), HitScream, GetActorLocation());
 
 	if (IsDead())
@@ -204,7 +207,6 @@ bool AShooterCharacter::ReachLineTrace(FHitResult &Hit)
 
 void AShooterCharacter::GrabGun(UClass* GunClassToGrab) 
 {
-	UE_LOG(LogTemp, Warning, TEXT("GRAB GUN"))
 	Gun = GetWorld()->SpawnActor<AGun>(GunClassToGrab);
 	Gun->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("WeaponSocket"));
 	Gun->SetOwner(this);

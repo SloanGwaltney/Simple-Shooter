@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "SImpleShooter/Actors/WeaponCrate.h"
 #include "ShooterCharacter.generated.h"
 
 class AGun;
@@ -19,6 +18,7 @@ class SIMPLESHOOTER_API AShooterCharacter : public ACharacter
 public:
 	// Sets default values for this character's properties
 	AShooterCharacter();
+	void Destroyed() override;
 
 protected:
 	// Called when the game starts or when spawned
