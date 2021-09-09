@@ -186,7 +186,6 @@ void AShooterCharacter::GrabItem()
 		LevelChangeComponent->ChangeLevel("Sandbox");
 		return;
 	}
-	UE_LOG(LogTemp, Warning, TEXT("Actor Hit: %s"), *HitActor->GetActorLabel())
 	if (HitActor->GetClass()->IsChildOf(AGun::StaticClass()))
 	{
 		UE_LOG(LogTemp, Warning, TEXT("LOG TRACE HIT GUN"))
