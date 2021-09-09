@@ -7,6 +7,7 @@
 #include "SImpleShooter/Characters/ShooterCharacter.h"
 #include "EndlessGameMode.generated.h"
 
+class UEndlessSaveGame;
 /**
  * 
  */
@@ -21,13 +22,17 @@ public:
 	UFUNCTION(BlueprintPure)
 	int32 GetNumberOfSecondsUntilWaveStart();
 
+	UFUNCTION(BlueprintPure)
+	int32 GetNumberOfEnemiesKilled() const;
+protected:
+	UPROPERTY(BlueprintReadWrite)
+	int32 NumberOfEnemiesKilled = 0;
 private:
 	void EndGame();
 	void StartRound();
 	void SpawnEnemies();
 	void WaveStartCountdownStep();
 
-	int32 NumberOfEnemiesKilled = 0;
 	int32 NumberOfEnemiesInWave = 1;
 	int32 NumberOfEnemiesRemaining = 0;
 	int32 SecondsUntilWaveStart = 0;

@@ -6,6 +6,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/PlayerStart.h"
 #include "SImpleShooter/Characters/ShooterCharacter.h"
+#include "SImpleShooter/EndlessSaveGame.h"
 
 void AEndlessGameMode::PawnKilled(APawn* PawnKilled) 
 {
@@ -35,6 +36,11 @@ void AEndlessGameMode::StartPlay()
 int32 AEndlessGameMode::GetNumberOfSecondsUntilWaveStart() 
 {
     return SecondsUntilWaveStart;
+}
+
+int32 AEndlessGameMode::GetNumberOfEnemiesKilled() const
+{
+    return NumberOfEnemiesKilled;
 }
 
 void AEndlessGameMode::EndGame() 
