@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "SImpleShooter/SImpleShooterGameModeBase.h"
 #include "SImpleShooter/Characters/ShooterCharacter.h"
+#include "SImpleShooter/Currencies/CurrencyBase.h"
 #include "EndlessGameMode.generated.h"
 
 class UEndlessSaveGame;
@@ -16,6 +17,8 @@ class SIMPLESHOOTER_API AEndlessGameMode : public ASImpleShooterGameModeBase
 {
 	GENERATED_BODY()
 public:
+
+	AEndlessGameMode();
 	virtual void PawnKilled(APawn* PawnKilled) override;
 	virtual void StartPlay();
 
@@ -24,6 +27,9 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	int32 GetNumberOfEnemiesKilled() const;
+
+	UFUNCTION(BlueprintPure)
+	UCurrencyBase* GetCurrencyRewarded();
 protected:
 	UPROPERTY(BlueprintReadWrite)
 	int32 NumberOfEnemiesKilled = 0;
@@ -40,6 +46,11 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<AShooterCharacter> AIClassToSpawn;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<UCurrencyBase> CurrencyRewardedClass;
+
+	UCurrencyBase* CurrencyRewarded;
 
 	FTimerHandle WaveStartCountdownHandle;
 };

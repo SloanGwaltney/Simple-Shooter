@@ -6,7 +6,14 @@
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/PlayerStart.h"
 #include "SImpleShooter/Characters/ShooterCharacter.h"
+#include "SImpleShooter/Components/CurrencyInventoryManager.h"
 #include "SImpleShooter/EndlessSaveGame.h"
+
+
+AEndlessGameMode::AEndlessGameMode() 
+{
+    CurrencyRewarded = CreateDefaultSubobject<UCurrencyBase>(TEXT("Currency Rewarded"));    
+}
 
 void AEndlessGameMode::PawnKilled(APawn* PawnKilled) 
 {
@@ -25,6 +32,12 @@ void AEndlessGameMode::PawnKilled(APawn* PawnKilled)
     }
     AShooterCharacter* CastedPawn = Cast<AShooterCharacter>(PawnKilled);
     CastedPawn->Destroy();
+    APawn* PlayerPawn = GetWorld()->GetFirstPlayerController()->GetPawn();
+    if (PlayerPawn != nullptr && PlayerPawn->FindComponentByClass<UCurrencyInventoryManager>() != nullptr)
+    {
+        FCurrencyInventoryItem TransactionItem(CurrencyRewarded, 1.f);
+        PlayerPawn->FindComponentByClass<UCurrencyInventoryManager>()->ProcessTransaction(TransactionItem);
+    }
 }
 
 void AEndlessGameMode::StartPlay() 
@@ -41,6 +54,11 @@ int32 AEndlessGameMode::GetNumberOfSecondsUntilWaveStart()
 int32 AEndlessGameMode::GetNumberOfEnemiesKilled() const
 {
     return NumberOfEnemiesKilled;
+}
+
+UCurrencyBase* AEndlessGameMode::GetCurrencyRewarded() 
+{
+    return CurrencyRewarded;
 }
 
 void AEndlessGameMode::EndGame() 
